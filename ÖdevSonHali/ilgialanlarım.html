@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interests API</title>
+	<link href="css/ilgialanlarım.css" rel="stylesheet" type="text/css">
+
+
+    <script>
+        // İlgi alanlarına göre önerileri döndüren JavaScript API'si
+        function getInterests(category) {
+            // XMLHttpRequest nesnesi oluştur
+            var xhr = new XMLHttpRequest();
+
+            // GET isteği yap
+            xhr.open('GET', 'sports.json', true);
+
+            // İstek tamamlandığında
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    // JSON yanıtını al
+                    var sportsData = JSON.parse(xhr.responseText);
+
+                    // Belirtilen kategoriye göre önerileri göster
+                    if (sportsData.hasOwnProperty(category)) {
+                        var categoryData = sportsData[category];
+
+                        // Kategori bilgisini göster
+                        var infoContainer = document.getElementById('info-container');
+                        infoContainer.innerHTML = '';
+                        var h2 = document.createElement('h2');
+                        h2.textContent = category.toUpperCase();
+                        infoContainer.appendChild(h2);
+
+                        // Kategori bilgilerini göster
+                        var pBilgi = document.createElement('p');
+                        pBilgi.textContent = categoryData.bilgi;
+                        infoContainer.appendChild(pBilgi);
+
+                        // Ek bilgileri göster
+                        if (categoryData.hasOwnProperty('ek_bilgi')) {
+                            var pEkBilgi = document.createElement('p');
+                            pEkBilgi.textContent = categoryData.ek_bilgi;
+                            infoContainer.appendChild(pEkBilgi);
+                        }
+
+                        // Yapımları göster
+                        for (const key in categoryData) {
+                            if (categoryData.hasOwnProperty(key) && key !== 'bilgi' && key !== 'ek_bilgi') {
+                                var yapimContainer = document.createElement('div');
+                                yapimContainer.classList.add('info-container');
+
+                                var h3 = document.createElement('h3');
+                                h3.textContent = key.replace(/_/g, ' ').toUpperCase();
+                                yapimContainer.appendChild(h3);
+
+                                var p = document.createElement('p');
+                                p.textContent = categoryData[key].bilgi;
+                                yapimContainer.appendChild(p);
+
+                                categoryData[key].fotoğraflar.forEach(function (fotoURL) {
+                                    var img = document.createElement('img');
+                                    img.src = fotoURL;
+                                    yapimContainer.appendChild(img);
+                                });
+
+                                infoContainer.appendChild(yapimContainer);
+                            }
+                        }
+                    } else {
+                        alert('Kategori bulunamadı.');
+                    }
+                } else {
+                    alert('API erişiminde bir hata oluştu.');
+                }
+            };
+
+            // İstek hatası durumunda
+            xhr.onerror = function () {
+                alert('API\'ye erişilemiyor.');
+            };
+
+            // İsteği gönder
+            xhr.send();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>İlgi Alanlarım</h1>
+        <div>
+            <button onclick="getInterests('futbol')">Futbol</button>
+            <button onclick="getInterests('basketbol')">Basketbol</button>
+            <button onclick="getInterests('film_dizi')">Film/Dizi</button>
+            <button onclick="getInterests('video_oyunlari')">Video Oyunları</button>
+        </div>
+        <div id="info-container"></div>
+    </div>
+</body>
+</html>
+
